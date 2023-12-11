@@ -6,7 +6,7 @@ from pydantic import Field, validator
 from datetime import datetime, timedelta
 from load_forecasting.resources.s3_resource import S3Resource
 from load_forecasting.resources.mongo_resource import MongoResource
-from load_forecasting.utils.asm_uc7_mongo_processing import smart_meters_load_forecasting_processing
+from load_forecasting.utils.asm_uc7.asm_uc7_mongo_processing import smart_meters_load_forecasting_processing
 
 TIME_INTERVALS = [f"{hour:02d}:{minute:02d}:00" for hour in range(24) for minute in range(0, 60, 30)]
 

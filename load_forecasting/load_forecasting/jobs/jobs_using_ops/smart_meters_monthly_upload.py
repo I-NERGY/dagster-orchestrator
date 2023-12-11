@@ -7,7 +7,7 @@ from dagster import job, Definitions, Output, DynamicOutput, DynamicOut, op, Con
     Failure, graph
 from load_forecasting.resources.s3_resource import S3Resource
 from load_forecasting.resources.mongo_resource import MongoResource
-from load_forecasting.utils.asm_uc7_mongo_processing import smart_meters_load_forecasting_processing
+from load_forecasting.utils.asm_uc7.asm_uc7_mongo_processing import smart_meters_load_forecasting_processing
 
 TIME_INTERVALS = [f"{hour:02d}:{minute:02d}:00" for hour in range(24) for minute in range(0, 60, 30)]
 
@@ -177,28 +177,43 @@ def upload_historical_smart_meters_data():
 def upload_historical_smart_meters_data_job():
     upload_historical_smart_meters_data()
 
+
 # Comment out for Python execution
 # defs = Definitions(
 #     jobs=[upload_historical_smart_meters_data_job],
 #     resources={
-#         "mongo_conn": MongoResource(#Fill),
-#         "s3_conn": S3Resource(# Fill)
+#         "mongo_conn": MongoResource(
+#             user='user',
+#             password='pass',
+#             address='host:port',
+#             database='db',
+#             collection='collection'
+#         ),
+#         "s3_conn": S3Resource(
+#             url='host:port',
+#             access_key='access',
+#             secret_key='secret',
+#         )
 #     },
 # )
 #
 # if __name__ == "__main__":
 #     result = defs.get_job_def('upload_historical_smart_meters_data_job').execute_in_process(
 #         run_config=RunConfig({
-#             "smart_meter_monthly_data_generator": SmartMeterMonthlyQueryOpConfig(
-#                 lower_date_threshold="2023-09-01",
-#                 upper_date_threshold="2023-10-26"
-#             ),
-#             "upload_to_minio": SmartMeterMonthlyUploadOpConfig(
-#                 bucket="load-forecasting",
-#                 bucket_directory="historical_monthly_data"
-#             ),
-#             "find_uploaded_months": SmartMeterMonthlyUploadOpConfig(
-#                 bucket="load-forecasting",
-#                 bucket_directory="historical_monthly_data"
-#             )
+#             'upload_historical_smart_meters_data': {
+#                 'ops': {
+#                     "smart_meter_monthly_data_generator": SmartMeterMonthlyQueryOpConfig(
+#                         lower_date_threshold="2023-09-01",
+#                         upper_date_threshold="2023-10-26"
+#                     ),
+#                     "upload_to_minio": SmartMeterMonthlyUploadOpConfig(
+#                         bucket="load-forecasting",
+#                         bucket_directory="historical_monthly_data"
+#                     ),
+#                     "find_uploaded_months": SmartMeterMonthlyUploadOpConfig(
+#                         bucket="load-forecasting",
+#                         bucket_directory="historical_monthly_data"
+#                     )
+#                 }
+#             }
 #         }))
