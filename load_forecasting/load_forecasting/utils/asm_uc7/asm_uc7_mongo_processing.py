@@ -38,7 +38,7 @@ def retrieve_specs(device_id: str) -> Tuple[bool, float, bool, float]:
 
 def remove_outliers(sm_df: pd.DataFrame, max_value: float, contract_exists: bool) -> None:
     min_value = 0
-    max_value = max_value if contract_exists else 200 * 1000
+    max_value = max_value if contract_exists else 200
     if contract_exists and max_value == 0:
         sm_df['value'] = nan
     else:
@@ -93,8 +93,8 @@ def smart_meters_load_forecasting_processing(data_cursor: pymongo.cursor, file_i
 
         for tag_name, group_data in grouped:
             # resample data within the tag_name group in 30 minutes intervals
-            resampled_group = group_data.resample(DEFAULT_RESAMPLING_FREQ, on='datetime', closed='right',
-                                                  label='right').agg({'value': 'sum'})
+            resampled_group = group_data.resample(DEFAULT_RESAMPLING_FREQ, on='datetime', closed='left',
+                                                  label='left').agg({'value': 'mean'})
 
             # create a full day index
             full_day_date_range = pd.date_range(start=(date + ' ' + '00:00:00'), end=(date + ' ' + '23:59:59'),
@@ -111,9 +111,9 @@ def smart_meters_load_forecasting_processing(data_cursor: pymongo.cursor, file_i
             # remove outliers based on contractual power and production
             # in place operation
             if PRODUCTION_TAG_NAME in tag_name:
-                remove_outliers(sm_df=resampled_group, max_value=prod_max * 1000, contract_exists=supports_prod)
+                remove_outliers(sm_df=resampled_group, max_value=prod_max, contract_exists=supports_prod)
             elif CONSUMPTION_TAG_NAME in tag_name:
-                remove_outliers(sm_df=resampled_group, max_value=cons_max * 1000, contract_exists=supports_cons)
+                remove_outliers(sm_df=resampled_group, max_value=cons_max, contract_exists=supports_cons)
             # Pivot the DataFrame
             pivoted_df = resampled_group.pivot(index=['device_id', 'tag_name', 'date'], columns='datetime',
                                                values='value')
