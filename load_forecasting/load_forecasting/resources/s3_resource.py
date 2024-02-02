@@ -35,3 +35,14 @@ class S3Resource(ConfigurableResource):
     def list_objects(self, bucket: str, prefix: str) -> Iterator[minio.datatypes.Object]:
         objects = self._client.list_objects(bucket_name=bucket, prefix=prefix, recursive=True)
         return objects
+
+    def get_object(self, bucket: str, object_name: str):
+        log = get_dagster_logger()
+        try:
+            response = self._client.get_object(bucket_name=bucket, object_name=object_name)
+            return response.data
+        except minio.S3Error as s3e:
+            log.error(f"Error in fetching object {object_name} - {s3e}")
+        finally:
+            response.close()
+            response.release_conn()

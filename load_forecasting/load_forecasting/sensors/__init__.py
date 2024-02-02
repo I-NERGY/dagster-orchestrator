@@ -1,0 +1,1 @@
+from .load_forecasts_sensor import compute_day_ahead_predictions_sensor

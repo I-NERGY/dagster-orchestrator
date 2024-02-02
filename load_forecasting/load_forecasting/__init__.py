@@ -2,6 +2,9 @@ import os
 from dagster import Definitions
 from .jobs.jobs_using_ops.smart_meters_forecasting_upload_minio import upload_smart_meters_forecasting_data_job
 from .jobs.jobs_using_ops.smart_meters_monthly_upload import upload_historical_smart_meters_data_job
+from .jobs.jobs_using_ops.smart_meters_day_ahead_predictions import compute_day_ahead_forecasts
+from .sensors import compute_day_ahead_predictions_sensor
+from .schedules import load_forecasting_daily_schedule
 from .resources import RESOURCES_LOCAL
 
 resources_by_deployment_name = {
@@ -16,7 +19,8 @@ all_assets = [
 
 all_jobs = [
     upload_historical_smart_meters_data_job,
-    upload_smart_meters_forecasting_data_job
+    upload_smart_meters_forecasting_data_job,
+    compute_day_ahead_forecasts
 ]
 
 deployment_name = os.environ.get("DAGSTER_DEPLOYMENT", "local")
@@ -25,6 +29,6 @@ defs = Definitions(
     assets=all_assets,
     jobs=all_jobs,
     resources=resources_by_deployment_name[deployment_name],
-    schedules=[],
-    sensors=[],
+    schedules=[load_forecasting_daily_schedule],
+    sensors=[compute_day_ahead_predictions_sensor],
 )

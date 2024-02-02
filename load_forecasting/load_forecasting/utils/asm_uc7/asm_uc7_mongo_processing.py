@@ -32,7 +32,7 @@ def retrieve_specs(device_id: str) -> Tuple[bool, float, bool, float]:
         return production_max >= 0, production_max, consumption_max >= 0, consumption_max
     except IndexError:
         # iloc[0] index error when smart meter is missing from csv with specs.
-        log.error(f'Smart meter {device_id} does not exist in contract')
+        log.warning(f'Smart meter {device_id} does not exist in contract')
         return False, nan, False, nan
 
 
