@@ -106,6 +106,9 @@ def get_day_ahead_load_forecasts(load_data_single_format: pd.DataFrame, smart_me
     hourly_range = pd.date_range(start=day_ahead.replace(hour=0, minute=0, second=0),
                                  end=day_ahead.replace(hour=23, minute=0, second=0),
                                  freq='H').time
+    current_date = datetime.now().date()
+    # last expected slot of current date (if data were complete)
+    last_slot_datetime = pd.Timestamp(current_date) + pd.Timedelta(hours=23)
     columns = [col.strftime("%H:%M:%S") for col in hourly_range]
     # TODO: columns are expected to refer to day ahead, but this may not happen
     predictions_df = pd.DataFrame(columns=columns)
@@ -114,10 +117,15 @@ def get_day_ahead_load_forecasts(load_data_single_format: pd.DataFrame, smart_me
         device_data = load_data_single_format[load_data_single_format['device_id'] == sm]
         if device_data.shape[0] == 0:
             continue
+        # last slot of existing data
+        max_datetime = device_data['datetime'].max()
+        # calculate the number of 1 hour slots, missing based on the actual and expected last slot
+        missing_slots = len(pd.date_range(start=max_datetime + pd.Timedelta(hours=1), end=last_slot_datetime, freq='H'))
         series = device_data.drop(['device_id'], axis=1)
         series.set_index('datetime', inplace=True)
         try:
-            response = forecasting_service.predict(timeseries=series, horizon=24, device_id=sm)
+            # horizon = predict missing slots & the day ahead
+            response = forecasting_service.predict(timeseries=series, horizon=missing_slots+24, device_id=sm)
             response.raise_for_status()
             result_df = pd.read_json(response.text)
         except requests.exceptions.ConnectionError as e:
@@ -129,7 +137,7 @@ def get_day_ahead_load_forecasts(load_data_single_format: pd.DataFrame, smart_me
         except requests.exceptions.RequestException as e:
             print(f"Error getting predictions. {e}")
         else:
-            predictions_df.loc[sm] = result_df['value'].tolist()
+            predictions_df.loc[sm] = result_df['value'].tail(24).tolist() # keep the day ahead forecasts
     predictions_df['date'] = day_ahead.strftime("%Y-%m-%d")
     predictions_df.reset_index(drop=False, names='device_id', inplace=True)
     folder_path = os.path.join(os.path.dirname(os.path.abspath(sys.modules['load_forecasting'].__file__)), "generated",
