@@ -2,5 +2,6 @@
 venv
 *.env
 *.csv
+!smart_meter_description.csv
 __pycache__/
 *.pyc

@@ -1,6 +1,6 @@
-dagster
-dagster-cloud
-pymongo
-minio
-pandas
-dagster-webserver
+dagster==1.6.3
+dagster-cloud==1.6.3
+pymongo==4.6.1
+minio==7.2.3
+pandas==2.2.0
+dagster-webserver==1.6.3
