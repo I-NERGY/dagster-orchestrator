@@ -5,12 +5,13 @@ from .jobs.jobs_using_ops.smart_meters_monthly_upload import upload_historical_s
 from .jobs.jobs_using_ops.smart_meters_day_ahead_predictions import compute_day_ahead_forecasts
 from .sensors import compute_day_ahead_predictions_sensor
 from .schedules import load_forecasting_daily_schedule
-from .resources import RESOURCES_LOCAL
+from .resources import RESOURCES_ENV_BY_FILE
 
 resources_by_deployment_name = {
     # "prod": RESOURCES_PROD,
     # "staging": RESOURCES_STAGING,
-    "local": RESOURCES_LOCAL,
+    # "local": RESOURCES_LOCAL,
+    "by_env_file": RESOURCES_ENV_BY_FILE
 }
 
 all_assets = [
@@ -23,7 +24,7 @@ all_jobs = [
     compute_day_ahead_forecasts
 ]
 
-deployment_name = os.environ.get("DAGSTER_DEPLOYMENT", "local")
+deployment_name = os.environ.get("DAGSTER_DEPLOYMENT", "by_env_file")
 
 defs = Definitions(
     assets=all_assets,

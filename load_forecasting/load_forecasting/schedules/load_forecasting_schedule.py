@@ -21,7 +21,7 @@ from load_forecasting.jobs.jobs_using_ops.smart_meters_forecasting_upload_minio 
 #     return run.is_success
 
 
-@schedule(job=upload_smart_meters_forecasting_data_job, cron_schedule="26 17 * * *", execution_timezone='EET')
+@schedule(job=upload_smart_meters_forecasting_data_job, cron_schedule="00 23 * * *", execution_timezone='EET')
 def load_forecasting_daily_schedule(context: ScheduleEvaluationContext):
     scheduled_date = context.scheduled_execution_time.strftime("%Y-%m-%d")
     return RunRequest(
@@ -34,7 +34,7 @@ def load_forecasting_daily_schedule(context: ScheduleEvaluationContext):
                 ),
                 "upload_forecasting_data_to_minio": SmartMeterForecastingUploadOpConfig(
                     bucket="load-forecasting",
-                    bucket_directory="historical_monthly_data"
+                    bucket_directory="forecasting-data"
                 ),
             }}
         }),

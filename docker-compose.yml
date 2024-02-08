@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  inergy-dagster:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    expose:
+      - 3000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./load_forecasting/load_forecasting:/opt/app/dagster/load_forecasting  # Mount a local volume into the container
+    networks:
+      - load-forecasting-net
+
+
+networks:
+  load-forecasting-net:
+    external: true
