@@ -142,6 +142,8 @@ def get_day_ahead_load_forecasts(load_data_single_format: pd.DataFrame, smart_me
     predictions_df.reset_index(drop=False, names='device_id', inplace=True)
     folder_path = os.path.join(os.path.dirname(os.path.abspath(sys.modules['load_forecasting'].__file__)), "generated",
                                'day_ahead_forecasts')
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
     output_file_name = f'{day_ahead.strftime("%Y-%m-%d")}.csv'
     output_file = os.path.join(folder_path, output_file_name)
     predictions_df.to_csv(output_file)
