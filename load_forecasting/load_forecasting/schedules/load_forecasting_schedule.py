@@ -1,4 +1,4 @@
-from dagster import schedule, ScheduleEvaluationContext
+from dagster import schedule, ScheduleEvaluationContext, DefaultScheduleStatus
 from dagster import RunRequest, RunConfig
 from load_forecasting.jobs.jobs_using_ops.smart_meters_forecasting_upload_minio import \
     upload_smart_meters_forecasting_data_job, SmartMeterForecastingUploadOpConfig, SmartMeterForecastingQueryConfig
@@ -21,7 +21,7 @@ from load_forecasting.jobs.jobs_using_ops.smart_meters_forecasting_upload_minio 
 #     return run.is_success
 
 
-@schedule(job=upload_smart_meters_forecasting_data_job, cron_schedule="00 23 * * *", execution_timezone='EET')
+@schedule(job=upload_smart_meters_forecasting_data_job, cron_schedule="15 15 * * *", execution_timezone='EET', default_status=DefaultScheduleStatus.RUNNING)
 def load_forecasting_daily_schedule(context: ScheduleEvaluationContext):
     scheduled_date = context.scheduled_execution_time.strftime("%Y-%m-%d")
     return RunRequest(
