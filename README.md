@@ -43,6 +43,36 @@ The following picture describes the workflow described above. \
 <img src="assets/dagster-flexdr-forecasts.PNG" alt="Day ahead forecasts job" width="500">
 
 ### Historical smart meters data processing
-
+This process falls outside the primary operations of the FlexDR application. 
+It is triggered as needed to produce training data for the DeepTSF service. 
+Its purpose is to retrieve and preprocess smart meters data from MongoDB within a time range specified by the user.
 
 ### Workflows orchestrated execution
+In order to enable FlexDR daily activities, both the [Smart meters data processing](#smart-meters-data-processing) job and 
+[Day ahead forecasting](#day-ahead-forecasting) job need to be carried out on a daily basis.
+For this reason, the first workflow is triggered according to a daily schedule while the second is executed by a sensor
+monitoring the execution of the first one.
+
+## Implementation description
+The workflows required by FlexDR were implemented as [Dagster jobs using Ops](https://docs.dagster.io/concepts/ops-jobs-graphs/op-jobs).
+These jobs could be found in [jobs directory](load_forecasting/load_forecasting/jobs/jobs_using_ops).
+The external services or databases were encoded as [Dagster resources](https://docs.dagster.io/concepts/resources) and are available
+in [resources directory](load_forecasting/load_forecasting/resources). These external entities include:
+* The Mongo databases (I-NERGY MongoDB with smart meters data & I-NERGY FlexDR MongoDB)
+* The DeepTSF load forecasting service (inference)
+* The FlexDR clustering service (inference)
+* The I-NERGY MinIO instance.
+The schedule and the sensor defined to orchestrate the workflows are available in [schedules directory](load_forecasting/load_forecasting/schedules)
+and [sensors directory](load_forecasting/load_forecasting/sensors) respectively.
+
+## Deployment instructions
+In order to deploy the Dagster instance locally a Docker compose file was prepared and could be utilised to start the services:
+```bash
+docker-compose up -d 
+```
+Prerequisite to execute the workflows is to provide a .env file containing the required environment variables referring to all the external
+entities involved in FlexDR.
+The Dagster UI will be exposed in port 3000 of localhost.
+Note here that this instance is intended for local deployment and Users are advised to refer to the 
+[deployment instructions](https://docs.dagster.io/deployment) to select the deployment method that best fits their infrastructure.
+Users should provide 
