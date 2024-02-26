@@ -68,9 +68,9 @@ def transform_load_data(load_data: pd.DataFrame) -> pd.DataFrame:
     # keep only data related to consumption
     cons_df = load_data[load_data['tag_name'].str.contains("Apiu")]
     # drop tag_name
-    cons_df.drop(['tag_name'], axis=1, inplace=True)
+    # cons_df.drop(['tag_name'], axis=1, inplace=True)
     # melt dataframe to generate single timeseries format dataframe
-    melted_df = pd.melt(cons_df, id_vars=['device_id', 'date'], var_name='time', value_name='value')
+    melted_df = pd.melt(cons_df, id_vars=['device_id', 'date', 'tag_name'], var_name='time', value_name='value')
     # combine date and time columns to create a new datetime column
     melted_df['datetime'] = melted_df['date'] + ' ' + melted_df['time']
     # convert the datetime column to a datetime format
@@ -121,11 +121,12 @@ def get_day_ahead_load_forecasts(load_data_single_format: pd.DataFrame, smart_me
         max_datetime = device_data['datetime'].max()
         # calculate the number of 1 hour slots, missing based on the actual and expected last slot
         missing_slots = len(pd.date_range(start=max_datetime + pd.Timedelta(hours=1), end=last_slot_datetime, freq='H'))
-        series = device_data.drop(['device_id'], axis=1)
+        tag_name = device_data.iloc[0]['tag_name']
+        series = device_data.drop(['device_id','tag_name'], axis=1)
         series.set_index('datetime', inplace=True)
         try:
             # horizon = predict missing slots & the day ahead
-            response = forecasting_service.predict(timeseries=series, horizon=missing_slots+24, device_id=sm)
+            response = forecasting_service.predict(timeseries=series, horizon=missing_slots+24, device_id=tag_name)
             response.raise_for_status()
             result_df = pd.read_json(response.text)
         except requests.exceptions.ConnectionError as e:
