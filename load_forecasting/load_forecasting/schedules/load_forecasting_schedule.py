@@ -29,7 +29,7 @@ def load_forecasting_daily_schedule(context: ScheduleEvaluationContext):
         run_config=RunConfig({
             'upload_smart_meters_forecasting': {'ops': {
                 "generate_query_boundaries": SmartMeterForecastingQueryConfig(
-                    window_size=7,
+                    window_size=14,
                     upper_date_threshold=scheduled_date
                 ),
                 "upload_forecasting_data_to_minio": SmartMeterForecastingUploadOpConfig(
