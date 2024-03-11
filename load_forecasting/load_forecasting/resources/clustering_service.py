@@ -11,7 +11,7 @@ class ClustersPredictionService(ConfigurableResource):
     def predict(self, timeseries: pd.DataFrame) -> Response:
         payload = json.dumps(timeseries.values.tolist())
         response = requests.post(
-            f"{self.endpoint}/predict",
+            f"{self.endpoint}/predict_clustering",
             data=payload,
         )
         return response

@@ -17,7 +17,7 @@ class LoadForecastingService(ConfigurableResource):
             }
         )
         response = requests.post(
-            f"{self.endpoint}/predict",
+            f"{self.endpoint}/predict_uc7",
             data=payload,
             headers={"Content-Type": payload.content_type}
         )
